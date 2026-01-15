@@ -1,0 +1,162 @@
+@page "/brands"
+@inject IBrandService BrandService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h4" GutterBottom="true">品牌管理</MudText>
+
+@* 搜索条件区域 *@
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_query.BrandName" Label="品牌名称" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_query.CompanyName" Label="企业名称" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudSelect @bind-Value="_query.Status" Label="状态" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
+                <MudSelectItem Value="@((int?)1)">启用</MudSelectItem>
+                <MudSelectItem Value="@((int?)0)">禁用</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3" Class="d-flex align-center">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchAsync" Class="mr-2">查询</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="ResetSearch">重置</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@* 操作按钮区域 *@
+<MudPaper Class="pa-4 mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddDialog" Class="mr-2">
+        新增品牌
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteSelectedAsync" Disabled="@(!_selectedBrands.Any())">
+        批量删除
+    </MudButton>
+</MudPaper>
+
+@* 数据表格 *@
+<MudTable Items="@_brands" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Primary"
+          MultiSelection="true" @bind-SelectedItems="_selectedBrands">
+    <HeaderContent>
+        <MudTh>序号</MudTh>
+        <MudTh>品牌名称</MudTh>
+        <MudTh>企业名称</MudTh>
+        <MudTh>排序</MudTh>
+        <MudTh>状态</MudTh>
+        <MudTh>描述</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="序号">@context.Id</MudTd>
+        <MudTd DataLabel="品牌名称">@context.BrandName</MudTd>
+        <MudTd DataLabel="企业名称">@context.CompanyName</MudTd>
+        <MudTd DataLabel="排序">@context.Ordered</MudTd>
+        <MudTd DataLabel="状态">
+            <MudChip T="string" Color="@(context.Status == 1 ? Color.Success : Color.Default)" Size="Size.Small">
+                @context.StatusStr
+            </MudChip>
+        </MudTd>
+        <MudTd DataLabel="描述">@context.Description</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>暂无数据</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 5, 10, 15, 20 }" />
+    </PagerContent>
+</MudTable>
+
+@* 分页信息 *@
+<MudText Class="mt-2">共 @_totalCount 条记录</MudText>
+
+@code {
+    private List<Brand> _brands = new();
+    private HashSet<Brand> _selectedBrands = new();
+    private BrandQueryDto _query = new();
+    private int _totalCount;
+    private bool _loading = true;
+    private int _currentPage = 1;
+    private int _pageSize = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true;
+        try
+        {
+            var result = await BrandService.GetByPageAndConditionAsync(_currentPage, _pageSize, _query);
+            _brands = result.Rows;
+            _totalCount = result.TotalCount;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"加载数据失败: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SearchAsync()
+    {
+        _currentPage = 1;
+        await LoadDataAsync();
+    }
+
+    private async Task ResetSearch()
+    {
+        _query = new BrandQueryDto();
+        _currentPage = 1;
+        await LoadDataAsync();
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var dialog = await DialogService.ShowAsync<BrandDialog>("新增品牌");
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            await LoadDataAsync();
+            Snackbar.Add("品牌添加成功", Severity.Success);
+        }
+    }
+
+    private async Task DeleteSelectedAsync()
+    {
+        if (!_selectedBrands.Any())
+        {
+            Snackbar.Add("请先选择要删除的品牌", Severity.Warning);
+            return;
+        }
+
+        var confirm = await DialogService.ShowMessageBox(
+            "确认删除",
+            $"确定要删除选中的 {_selectedBrands.Count} 个品牌吗？",
+            yesText: "确定",
+            cancelText: "取消");
+
+        if (confirm == true)
+        {
+            try
+            {
+                var ids = _selectedBrands.Select(b => b.Id).ToArray();
+                await BrandService.DeleteByIdsAsync(ids);
+                _selectedBrands.Clear();
+                await LoadDataAsync();
+                Snackbar.Add("删除成功", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"删除失败: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

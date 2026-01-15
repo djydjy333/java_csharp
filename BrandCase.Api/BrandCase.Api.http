@@ -1,0 +1,6 @@
+@BrandCase.Api_HostAddress = http://localhost:5210
+
+GET {{BrandCase.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

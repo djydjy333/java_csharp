@@ -1,0 +1,11 @@
+I:\brand-case\BrandCase\BrandCase.Core\bin\Debug\net9.0\BrandCase.Core.deps.json
+I:\brand-case\BrandCase\BrandCase.Core\bin\Debug\net9.0\BrandCase.Core.dll
+I:\brand-case\BrandCase\BrandCase.Core\bin\Debug\net9.0\BrandCase.Core.pdb
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\BrandCase.Core.GeneratedMSBuildEditorConfig.editorconfig
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\BrandCase.Core.AssemblyInfoInputs.cache
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\BrandCase.Core.AssemblyInfo.cs
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\BrandCase.Core.csproj.CoreCompileInputs.cache
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\BrandCase.Core.dll
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\refint\BrandCase.Core.dll
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\BrandCase.Core.pdb
+I:\brand-case\BrandCase\BrandCase.Core\obj\Debug\net9.0\ref\BrandCase.Core.dll

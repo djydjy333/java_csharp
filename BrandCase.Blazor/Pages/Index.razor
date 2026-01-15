@@ -1,0 +1,18 @@
+@page "/"
+
+<MudText Typo="Typo.h3" GutterBottom="true">欢迎使用品牌管理系统</MudText>
+<MudText Class="mb-8">这是一个基于 Blazor Server + MudBlazor 的品牌管理应用</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h5">品牌管理</MudText>
+                <MudText Typo="Typo.body2">管理系统中的所有品牌信息</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Href="/brands">进入管理</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+</MudGrid>

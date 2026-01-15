@@ -1,0 +1,75 @@
+@inject IBrandService BrandService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-3" /> 品牌信息
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_formIsValid">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_brand.BrandName" Label="品牌名称" Required="true"
+                                  RequiredError="请输入品牌名称" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_brand.CompanyName" Label="企业名称" Required="true"
+                                  RequiredError="请输入企业名称" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_brand.Ordered" Label="排序" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_brand.Status" Label="状态" Variant="Variant.Outlined">
+                        <MudSelectItem Value="@((int?)1)">启用</MudSelectItem>
+                        <MudSelectItem Value="@((int?)0)">禁用</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_brand.Description" Label="描述" Lines="3" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">取消</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SubmitAsync" Disabled="@(!_formIsValid || _submitting)">
+            @if (_submitting)
+            {
+                <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+            }
+            保存
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = default!;
+
+    private Brand _brand = new() { Status = 1 };
+    private MudForm _form = default!;
+    private bool _formIsValid;
+    private bool _submitting;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+        if (!_formIsValid) return;
+
+        _submitting = true;
+        try
+        {
+            await BrandService.AddAsync(_brand);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch
+        {
+            _submitting = false;
+            throw;
+        }
+    }
+}
